@@ -2,6 +2,7 @@
 AI Prompt-Injection Firewall: a FastAPI proxy that scans untrusted chat
 messages before forwarding them to a configured OpenAI-compatible LLM.
 """
+import hmac
 import os
 import re
 from typing import Any
@@ -115,7 +116,7 @@ def scan_payload(payload: dict[str, Any]) -> ScanResult:
 
 
 def check_key(key: str | None) -> None:
-    if FIREWALL_API_KEY and key != FIREWALL_API_KEY:
+    if FIREWALL_API_KEY and not hmac.compare_digest(key or "", FIREWALL_API_KEY):
         raise HTTPException(status_code=401, detail="Invalid firewall API key.")
 
 
